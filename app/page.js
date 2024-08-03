@@ -8,6 +8,7 @@ import {
   Stack,
   TextField,
   Typography,
+  useTheme,
 } from "@mui/material";
 import {
   collection,
@@ -24,6 +25,8 @@ export default function Home() {
   const [inventory, setInventory] = useState([]);
   const [open, setOpen] = useState(false);
   const [itemName, setItemName] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const theme = useTheme();
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -75,16 +78,27 @@ export default function Home() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const filteredInventory = inventory.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Box
-      width="100vw"
-      height="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      gap={2}
+      sx={{
+        bgcolor: "#f5f5f5",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 3,
+        p: 3,
+      }}
     >
+      <Typography variant="h3" sx={{ mb: 2, fontWeight: "bold" }}>
+        Pantry Tracker
+      </Typography>
+
       <Modal open={open} onClose={handleClose}>
         <Box
           position="absolute"
@@ -100,9 +114,17 @@ export default function Home() {
           gap={3}
           sx={{
             transform: "translate(-50%,-50%)",
+            borderRadius: "10px",
+            animation: "fadeIn 0.3s ease-in-out",
+            "@keyframes fadeIn": {
+              "0%": { opacity: 0 },
+              "100%": { opacity: 1 },
+            },
           }}
         >
-          <Typography variant="h3">Add item</Typography>
+          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+            Add item
+          </Typography>
           <Stack width="100%" direction="row" spacing={2}>
             <TextField
               variant="outlined"
@@ -113,7 +135,8 @@ export default function Home() {
               }}
             />
             <Button
-              variant="outlined"
+              variant="contained"
+              color="primary"
               onClick={() => {
                 addItem(itemName);
                 setItemName("");
@@ -125,61 +148,85 @@ export default function Home() {
           </Stack>
         </Box>
       </Modal>
+
       <Button
         variant="contained"
-        onClick={() => {
-          handleOpen();
+        color="primary"
+        onClick={handleOpen}
+        sx={{
+          mb: 2,
+          transition: "background-color 0.3s",
+          "&:hover": { backgroundColor: theme.palette.secondary.main },
         }}
       >
         Add New Item
       </Button>
-      <Box border="1px solid #333 ">
+
+      <TextField
+        variant="outlined"
+        placeholder="Search items..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        sx={{ width: "400px", mb: 2 }}
+      />
+
+      <Box
+        sx={{
+          border: "1px solid #333",
+          width: "800px",
+          bgcolor: "#e0f7fa",
+          borderRadius: "10px",
+          p: 2,
+        }}
+      >
         <Box
-          width="800px"
-          height="100px"
-          bgcolor="#ADD8E6"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
+          sx={{
+            height: "100px",
+            bgcolor: "#80deea",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "10px 10px 0 0",
+          }}
         >
-          <Typography variant="h2" color="#333">
-            Inventory Items
+          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+            Pantry Items
           </Typography>
         </Box>
 
-        <Stack width="800px" height="300px" spacing={2} overflow="auto">
-          {inventory.map(({ name, quantity }) => (
+        <Stack spacing={2} sx={{ overflow: "auto", maxHeight: "300px", p: 2 }}>
+          {filteredInventory.map(({ name, quantity }) => (
             <Box
               key={name}
-              width="100%"
-              minHeight="150px"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              bgcolor="#f0f0f0"
-              padding={5}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                bgcolor: "#fff",
+                p: 2,
+                borderRadius: "10px",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+                transition: "transform 0.2s, background-color 0.3s",
+                "&:hover": {
+                  transform: "scale(1.02)",
+                  backgroundColor: "#f0f0f0",
+                },
+              }}
             >
-              <Typography variant="h3" color="#333" textAlign="center">
-                {name.charAt(0).toUpperCase() + name.slice(1)}
-              </Typography>
-              <Typography variant="h3" color="#333" textAlign="center">
-                {quantity}
-              </Typography>
-              <Stack direction='row' spacing={2} > 
-                {" "}
+              <Typography variant="h6">{name}</Typography>
+              <Typography variant="h6">{quantity}</Typography>
+              <Stack direction="row" spacing={2}>
                 <Button
                   variant="contained"
-                  onClick={() => {
-                    addItem(name);
-                  }}
+                  color="primary"
+                  onClick={() => addItem(name)}
                 >
                   Add
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={() => {
-                    removeItem(name);
-                  }}
+                  color="secondary"
+                  onClick={() => removeItem(name)}
                 >
                   Remove
                 </Button>
@@ -188,6 +235,8 @@ export default function Home() {
           ))}
         </Stack>
       </Box>
+
+      <Typography sx={{ mt: 3 }}>Made By Jayjeet Kumar</Typography>
     </Box>
   );
 }
