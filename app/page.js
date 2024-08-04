@@ -9,6 +9,7 @@ import {
   TextField,
   Typography,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   collection,
@@ -27,6 +28,7 @@ export default function Home() {
   const [itemName, setItemName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const updateInventory = async () => {
     const snapshot = query(collection(firestore, "inventory"));
@@ -86,7 +88,7 @@ export default function Home() {
     <Box
       sx={{
         bgcolor: "#f5f5f5",
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -95,7 +97,10 @@ export default function Home() {
         p: 3,
       }}
     >
-      <Typography variant="h3" sx={{ mb: 2, fontWeight: "bold" }}>
+      <Typography
+        variant={isMobile ? "h4" : "h3"}
+        sx={{ mb: 2, fontWeight: "bold", textAlign: "center" }}
+      >
         Pantry Tracker
       </Typography>
 
@@ -104,7 +109,7 @@ export default function Home() {
           position="absolute"
           top="50%"
           left="50%"
-          width={400}
+          width={isMobile ? "90%" : 400}
           bgcolor="white"
           border="2px solid #000"
           boxShadow={24}
@@ -122,10 +127,17 @@ export default function Home() {
             },
           }}
         >
-          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            sx={{ fontWeight: "bold" }}
+          >
             Add item
           </Typography>
-          <Stack width="100%" direction="row" spacing={2}>
+          <Stack
+            width="100%"
+            direction={isMobile ? "column" : "row"}
+            spacing={2}
+          >
             <TextField
               variant="outlined"
               fullWidth
@@ -167,13 +179,13 @@ export default function Home() {
         placeholder="Search items..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ width: "400px", mb: 2 }}
+        sx={{ width: isMobile ? "90%" : "400px", mb: 2 }}
       />
 
       <Box
         sx={{
           border: "1px solid #333",
-          width: "800px",
+          width: isMobile ? "90%" : "800px",
           bgcolor: "#e0f7fa",
           borderRadius: "10px",
           p: 2,
@@ -189,7 +201,10 @@ export default function Home() {
             borderRadius: "10px 10px 0 0",
           }}
         >
-          <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            sx={{ fontWeight: "bold" }}
+          >
             Pantry Items
           </Typography>
         </Box>
@@ -200,6 +215,7 @@ export default function Home() {
               key={name}
               sx={{
                 display: "flex",
+                flexDirection: isMobile ? "column" : "row",
                 alignItems: "center",
                 justifyContent: "space-between",
                 bgcolor: "#fff",
@@ -236,7 +252,9 @@ export default function Home() {
         </Stack>
       </Box>
 
-      <Typography sx={{ mt: 3 }}>Made By Jayjeet Kumar</Typography>
+      <Typography sx={{ mt: 3, textAlign: "center" }}>
+        Made By Jayjeet Kumar
+      </Typography>
     </Box>
   );
 }
